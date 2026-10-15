@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RotaLucro</title>
+    <style>
+        
+        :root {
+        --bg: #101018;
+        --surface: #1B1B2B;
+        --primary: #8B5CF6;
+        --primary-hover: #A78BFA;
+        --text: #F5F3FF;
+        --text-muted: #9CA3AF;
+        --profit: #22C55E;
+        --expense: #EF4444;
+        --border: #303047;
+        }
+
+        *{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body{
+            background-color: var(--bg);
+        }
+
+        h1{
+            color: var(--text);
+            justify-self: center;
+            margin: 15px;
+        }
+
+        .forms{
+            background-color: var(--surface);
+            border: solid 2px var(--border);
+            padding: 15px;
+            width: 350px;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 15px;
+        }
+
+        .forms .group{
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .resultado{
+            width: 350px;
+            color: var(--text);
+            padding: 15px;
+            margin: 15px;
+            background-color: var(--surface);
+            border: solid 2px var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .resultado .lucrostotais,
+        .resultado .lucrosporhora{
+            display: flex;
+            justify-content: space-between;
+            color: var(--text);
+        }
+
+        .resultado .lucrostotais p:last-child,
+        .resultado .lucrosporhora p:last-child{
+            font-weight: bold;
+        }
+
+        .resultado .muted{
+            color: var(--text-muted);
+        }
+
+    </style>
+</head>
+<body>
+    <h1>RotaLucro</h1>
+    <div class="forms">
+        <div class="group">
+            <label for="data">Data:</label>
+            <input id="data" type="date">
+        </div>
+        <div class="group">
+            <label for="ganhos">Ganhos:</label>
+            <input id="ganhos" type="number" step="0.01" min="0">
+        </div>
+        <div class="group">
+            <label for="gastos">Gastos:</label>
+            <input id="gastos" type="number" step="0.01" min="0">  
+        </div>
+        <div class="group">
+            <label for="horas">Horas Trabalhadas:</label>
+            <input id="horas" type="number" step="0.1" min="0.1">            
+        </div>
+
+        <button id="calcular" type="button" onclick="calcular()">Calcular</button>
+    </div>
+    
+    <div class="resultado">
+        <div class="lucrostotais">
+            <p class="muted">Lucro Líquido estimado:</p>
+            <p id="lucrototal"></p>
+        </div>
+        <div class="lucrosporhora">
+            <p class="muted">Lucro por hora:</p>
+            <p id="lucroporhora"></p>
+        </div>
+    </div>
+
+    <div class="historico">
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Ganhos</th>
+                    <th>Gastos</th>
+                    <th>Horas</th>
+                    <th>Lucro</th>
+                    <th>Lucro por hora</th>
+                </tr>
+            </thead>
+            <tbody id="tabelahistorico">
+
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        
+        let historico = [];
+
+        function calcular(){
+            let data = document.getElementById("data").value;
+            let ganhos = document.getElementById("ganhos").value;
+            let gastos = document.getElementById("gastos").value;
+            let horas = document.getElementById("horas").value;
+
+            if(data != "" && ganhos != "" && gastos != "" && horas != ""){
+                if(ganhos >= 0 && gastos >= 0){
+                    if(horas > 0){
+                        let resultado = Number(ganhos) - Number(gastos);
+                        let eurosporhora = resultado / Number(horas);
+
+                        document.getElementById("lucrototal").textContent = resultado.toFixed(2) + " €";
+                        document.getElementById("lucroporhora").textContent = eurosporhora.toFixed(2) + " €";
+
+                        if(resultado > 0){
+                            document.getElementById("lucrototal").style = "color: var(--profit)";
+                        }else{
+                            document.getElementById("lucrototal").style = "color: var(--expense)";
+                        }
+
+                        if(eurosporhora > 0){
+                            document.getElementById("lucroporhora").style = "color: var(--profit);";
+                        }else{
+                            document.getElementById("lucroporhora").style = "color: var(--expense);";
+                        }
+
+                        historico.push([data, ganhos, gastos, horas, resultado.toFixed(2), eurosporhora.toFixed(2)]);
+
+                        console.log(historico);
+
+                        document.getElementById("tabelahistorico").innerHTML = "";
+
+                        for(let i = 0; i < historico.length; i++){
+                                document.getElementById("tabelahistorico").innerHTML +=    "\<tr\>" + "\n" + 
+                                                "\<td\>" + historico[i][0] + "\</td\> \n" +
+                                                "\<td\>" + historico[i][1] + "\</td\> \n" +
+                                                "\<td\>" + historico[i][2] + "\</td\> \n" +
+                                                "\<td\>" + historico[i][3] + "\</td\> \n" +
+                                                "\<td\>" + historico[i][4] + "\</td\> \n" +
+                                                "\<td\>" + historico[i][5] + "\</td\> \n" +
+                                                "\</tr\>";
+                        }
+
+                        
+
+                    }else{
+                        alert("As horas não podem ser igual a 0!");
+                    }
+                }else{
+                    alert("Os valores não podem ser negativos!");
+                }
+            }else{
+                alert("Preencha todos os campos");
+            }
+        }
+    </script>
+</body>
+</html>
